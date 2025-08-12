@@ -1,20 +1,47 @@
 <script>
+import * as usersApi from './api/users.js'
+import * as postsApi from './api/posts.js'
+import AppHeader from './components/Header.vue';
+import PostsList from './components/PostList.vue';
+
+export default {
+  components: {
+    AppHeader,
+    PostsList
+  },
+
+  data() {
+    return {
+      posts: [],
+      user: null,
+    }
+  },
+
+  mounted() {
+  postsApi.getPostsByUserId(589)
+    .then(res => {
+      this.posts = res.data; 
+    })
+  
+  usersApi.getUserbyEmail("kowalski_1410@wp.pl")
+    .then(res => {
+      this.user = res.data[0]
+    })
+  }
+};
+
 </script>
 
 <template>
+  <AppHeader :user="user"/>
+
+  <main class="section">
+    <div class="container">
+      <div class="tile is-ancestor is-flex is-flex-wrap-wrap">
+        <PostsList :posts="posts"/>
+      </div>
+    </div>
+  </main>
 </template>
 
-<style>
-.list-enter-active,
-.list-leave-active {
-  max-height: 60px;
-  /* transition: all 0.5s ease; */
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  max-height: 0;
-  transform: scaleY(0);
-}
-</style>
+<style></style>
