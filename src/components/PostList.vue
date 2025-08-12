@@ -1,25 +1,28 @@
 <script>
 import Sidebar from './Sidebar.vue'
+import Loader from './Loader.vue'
 
 export default {
     components: {
-        Sidebar
+        Sidebar,
+        Loader
     },
     name: 'PostsList',
     props: {
         posts: {
             type: Array,
             required: true
-        }
+        },
+        isLoading: Boolean
     },
     data() {
         return {
-            selectedPostId: 0
+            selectedPostId: 0,
         }
     },
     methods: {
         toggleSelectedPost(id) {
-            if(this.selectedPostId === id) {
+            if (this.selectedPostId === id) {
                 this.selectedPostId = 0
             } else {
                 this.selectedPostId = id;
@@ -51,17 +54,23 @@ export default {
                             <th class="has-text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody v-if="isLoading">
+                        <tr>
+                            <td colspan="3" class="has-text-centered" style="padding: 2rem;">
+                                <Loader />
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <tbody v-else>
                         <tr v-for="post in posts" :key="post.id">
                             <td>{{ post.id }}</td>
                             <td>{{ post.title }}</td>
                             <td class="has-text-right is-vcentered">
-                                <button 
-                                type="button" 
-                                class="button is-link"
-                                :class="{ 'is-light': post.id === selectedPostId }"
-                                @click="toggleSelectedPost(post.id)">
-                                    {{post.id === selectedPostId ? 'Close' : 'Open'}}
+                                <button type="button" class="button is-link"
+                                    :class="{ 'is-light': post.id === selectedPostId }"
+                                    @click="toggleSelectedPost(post.id)">
+                                    {{ post.id === selectedPostId ? 'Close' : 'Open' }}
                                 </button>
                             </td>
                         </tr>
@@ -73,3 +82,6 @@ export default {
 
     <Sidebar v-if="selectedPost" :post="selectedPost" />
 </template>
+<style>
+
+</style>
