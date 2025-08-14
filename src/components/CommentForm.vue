@@ -2,9 +2,9 @@
   export default {
     data() {
       return {
-        newName = "",
-        newEmail = "",
-        newBody = "",
+        newName: "",
+        newEmail: "",
+        newBody: "",
       }
     },
     emits: ['add'],
@@ -35,7 +35,7 @@
           id="comment-author-name-name"
           placeholder="Name Surname"
           class="input"
-          value={{newName}}
+          v-model="newName"
         /><span class="icon is-small is-left"
           ><i class="fas fa-user fa-user"></i
         ></span>
@@ -50,7 +50,7 @@
           id="comment-author-name-email"
           placeholder="Your Email"
           class="input"
-          value={{newEmail}}
+          v-model="newEmail"
         /><span class="icon is-small is-left"
           ><i class="fas fa-user fa-envelope"></i
         ></span>
