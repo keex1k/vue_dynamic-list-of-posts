@@ -1,18 +1,65 @@
 <script>
+import * as commentsApi from '../api/comments.js'
+import CommentForm from './CommentForm.vue'
+
 export default {
+  components: {
+    CommentForm
+  },
   props: {
     post: Object,
   },
-  emits: ['delete','open'],
+  emits: ["delete", "open"],
+
+  data() {
+    return {
+      comments: [],
+      isCommentsLoading: false,
+      isCommentFormOpened:false,
+    }
+  },
+
+  watch: {
+    post: {
+      immediate: true,
+      handler(newPost) {
+        if (newPost?.id) {
+          this.fetchComments(newPost.id);
+        }
+      },
+    },
+  },
 
   methods: {
     deletePost() {
-        this.$emit('delete',this.post.id)
+      this.$emit("delete", this.post.id);
     },
     editPost() {
-        this.$emit('open')
+      this.$emit("open");
+    },
+    toggleCommentForm() {
+      this.isCommentFormOpened = true;
+    },  
+    async fetchComments(postId) {
+      this.isCommentsLoading = true;
+      try {
+        const res = await commentsApi.getCommentsByPostId(postId);
+        this.comments = res.data;
+      } catch (err) {
+        console.error(err);
+        this.comments = [];
+      } finally {
+        this.isCommentsLoading = false;
+      }
+    },
+    async deleteComment(commentId) {
+      await commentsApi.deleteComment(commentId);
+      this.comments = this.comments.filter((comment) => comment.id !== commentId);
+    },
+    async createComment(commentData) {
+      
     }
-  }
+  },
 };
 </script>
 
@@ -26,8 +73,9 @@ export default {
           >
             <h2>{{ `#${post.id}: ${post.title}` }}</h2>
             <div class="is-flex">
-              <span class="icon is-small is-right is-clickable"
-              @click="editPost"
+              <span
+                class="icon is-small is-right is-clickable"
+                @click="editPost"
                 ><i class="fas fa-pen-to-square"></i></span
               ><span
                 class="icon is-small is-right has-text-danger is-clickable ml-3"
@@ -40,14 +88,32 @@ export default {
         </div>
         <div class="block">
           <div class="block">
-            <p class="title is-4" data-cy="NoCommentsMessage">
+            <p v-if="comments.length === 0 && !isCommentsLoading" class="title is-4" data-cy="NoCommentsMessage">
               No comments yet
             </p>
+            <article v-else v-for="comment in comments" class="message is-small" data-cy="Comment">
+              <div class="message-header">
+                <a href="mailto:a@a.pl" data-cy="CommentAuthor">{{comment.name}}</a
+                ><button
+                  data-cy="CommentDelete"
+                  type="button"
+                  class="delete is-small"
+                  aria-label="delete"
+                  @click="deleteComment(comment.id)"
+                >
+                  delete button
+                </button>
+              </div>
+              <div class="message-body" data-cy="CommentBody">{{comment.body}}</div>
+            </article>
           </div>
+          <CommentForm v-if="isCommentFormOpened"/>
           <button
+            v-if="!isCommentFormOpened"
             data-cy="WriteCommentButton"
             type="button"
             class="button is-link"
+            @click="toggleCommentForm"
           >
             Write a comment
           </button>

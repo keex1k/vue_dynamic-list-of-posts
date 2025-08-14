@@ -58,7 +58,6 @@ export default {
         body: postData.body,
       });
 
-      // Zaktualizuj lokalnie listę postów
       this.posts = this.posts.map((post) =>
         post.id === postData.id ? { ...post, ...res.data } : post
       );
