@@ -3,6 +3,14 @@ export default {
   props: {
     user: Object
   },
+
+  emits: ['logout'],
+
+  methods: {
+    logout() {
+      this.$emit('logout');
+    }
+  }
 }
 </script>
 
@@ -19,7 +27,7 @@ export default {
             <p> {{ user?.name || 'Loading...' }}</p>
           </div>
 
-          <a class="button is-light">Logout</a>
+          <a class="button is-light" @click="logout">Logout</a>
         </div>
       </div>
     </div>

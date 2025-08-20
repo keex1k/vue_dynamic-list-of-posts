@@ -5,26 +5,31 @@ import AppHeader from "./components/Header.vue";
 import PostsList from "./components/PostList.vue";
 import Loader from "./components/Loader.vue";
 import AddPostPopup from "./components/AddPostPopup.vue";
+import LoginPage from "./components/LoginPage.vue";
 
 export default {
-  components: { AppHeader, PostsList, Loader, AddPostPopup },
+  components: { AppHeader, PostsList, Loader, AddPostPopup, LoginPage },
 
   data() {
     return {
       posts: [],
-      user: null,
+      user: {},
       isLoading: true,
     };
   },
 
   async mounted() {
     try {
-      const [postsRes, userRes] = await Promise.all([
-        postsApi.getPostsByUserId(3032),
-        usersApi.getUserbyEmail("kowalski_1410@wp.pl"),
+      const storedUser = localStorage.getItem("user")
+
+      if (storedUser) {
+        this.user = JSON.parse(storedUser)
+      }
+
+      const [postsRes] = await Promise.all([
+        postsApi.getPostsByUserId(this.user.id),
       ]);
       this.posts = postsRes.data;
-      this.user = userRes.data?.[0] || null;
     } catch (e) {
       console.error(e);
     } finally {
@@ -62,26 +67,38 @@ export default {
         post.id === postData.id ? { ...post, ...res.data } : post
       );
     },
+
+    saveUser(userData) {
+      localStorage.setItem("user", JSON.stringify(userData));
+      this.user = userData;
+    },
+
+    removeUser() {
+      localStorage.removeItem("user");
+      this.user = {};
+    },
+
+    isLoggedIn() {
+      return Boolean(this.user.id);
+    },
   },
 };
 </script>
 
 <template>
-  <AppHeader :user="user" />
+  <LoginPage v-if="!isLoggedIn()" @addUser="saveUser" />
 
-  <main class="section">
-    <div class="container">
-      <div class="tile is-ancestor is-flex is-flex-wrap-wrap">
-        <PostsList
-          :posts="posts"
-          :isLoading="isLoading"
-          @add="addPost"
-          @delete="removePost"
-          @edit="editPost"
-        />
+  <template v-else>
+    <AppHeader :user="user" @logout="removeUser" />
+
+    <main class="section">
+      <div class="container">
+        <div class="tile is-ancestor is-flex is-flex-wrap-wrap">
+          <PostsList :posts="posts" :isLoading="isLoading" @add="addPost" @delete="removePost" @edit="editPost" />
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </template>
 </template>
 
 <style></style>
