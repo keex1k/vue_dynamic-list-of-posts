@@ -100,8 +100,12 @@ export default {
             Add New Post
           </button>
         </div>
-
-        <table class="table is-fullwidth is-striped is-hoverable is-narrow">
+        <div v-if="isLoading" style="display: flex; justify-content: center;">
+          <Loader  />
+        </div>
+        
+        <h3 v-else-if="posts.length === 0" class="mt-2 has-text-centered">No posts yet.</h3>
+        <table v-else class="table is-fullwidth is-striped is-hoverable is-narrow">
           <thead>
             <tr class="has-background-link-light">
               <th>ID</th>
@@ -109,15 +113,7 @@ export default {
               <th class="has-text-right">Actions</th>
             </tr>
           </thead>
-          <tbody v-if="isLoading">
-            <tr>
-              <td colspan="3" class="has-text-centered" style="padding: 2rem">
-                <Loader />
-              </td>
-            </tr>
-          </tbody>
-
-          <tbody v-else>
+          <tbody>
             <tr v-for="post in posts" :key="post.id">
               <td>{{ post.id }}</td>
               <td>{{ post.title }}</td>

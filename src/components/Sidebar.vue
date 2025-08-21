@@ -1,10 +1,12 @@
 <script>
 import * as commentsApi from '../api/comments.js'
 import CommentForm from './CommentForm.vue'
+import Loader from './Loader.vue'
 
 export default {
   components: {
-    CommentForm
+    CommentForm,
+    Loader
   },
   props: {
     post: Object,
@@ -96,7 +98,10 @@ export default {
             <p v-if="comments.length === 0 && !isCommentsLoading" class="title is-4" data-cy="NoCommentsMessage">
               No comments yet
             </p>
-            <article v-else v-for="comment in comments" class="message is-small" data-cy="Comment">
+            <div v-else-if="isCommentsLoading" style="display: flex; justify-content: center;">
+              <Loader />
+            </div>
+            <article v-else-if="!isCommentFormOpened" v-for="comment in comments" class="message is-small" data-cy="Comment">
               <div class="message-header">
                 <a href="mailto:a@a.pl" data-cy="CommentAuthor">{{ comment.name }}</a><button data-cy="CommentDelete"
                   type="button" class="delete is-small" aria-label="delete" @click="deleteComment(comment.id)">

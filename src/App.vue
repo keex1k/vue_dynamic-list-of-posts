@@ -1,14 +1,12 @@
 <script>
-import * as usersApi from "./api/users.js";
 import * as postsApi from "./api/posts.js";
 import AppHeader from "./components/Header.vue";
 import PostsList from "./components/PostList.vue";
-import Loader from "./components/Loader.vue";
 import AddPostPopup from "./components/AddPostPopup.vue";
 import LoginPage from "./components/LoginPage.vue";
 
 export default {
-  components: { AppHeader, PostsList, Loader, AddPostPopup, LoginPage },
+  components: { AppHeader, PostsList, AddPostPopup, LoginPage },
 
   data() {
     return {
