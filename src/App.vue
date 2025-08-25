@@ -13,15 +13,16 @@ export default {
       posts: [],
       user: {},
       isLoading: true,
+      error: null,
     };
   },
 
   async mounted() {
     try {
-      const storedUser = localStorage.getItem("user")
+      const storedUser = localStorage.getItem("user");
 
       if (storedUser) {
-        this.user = JSON.parse(storedUser)
+        this.user = JSON.parse(storedUser);
       }
 
       const [postsRes] = await Promise.all([
@@ -30,6 +31,7 @@ export default {
       this.posts = postsRes.data;
     } catch (e) {
       console.error(e);
+      this.error = "Nie udało się załadować postów. Spróbuj ponownie później.";
     } finally {
       this.isLoading = false;
     }
@@ -91,12 +93,32 @@ export default {
 
     <main class="section">
       <div class="container">
-        <div class="tile is-ancestor is-flex is-flex-wrap-wrap">
-          <PostsList :posts="posts" :isLoading="isLoading" @add="addPost" @delete="removePost" @edit="editPost" />
+
+        <!-- Loader -->
+        <div v-if="isLoading" class="has-text-centered">
+          <p>Ładowanie postów...</p>
+        </div>
+
+        <div v-else-if="error" class="notification is-danger">
+          {{ error }}
+        </div>
+
+        <div v-else class="tile is-ancestor is-flex is-flex-wrap-wrap">
+          <PostsList
+            :posts="posts"
+            :isLoading="isLoading"
+            @add="addPost"
+            @delete="removePost"
+            @edit="editPost"
+          />
         </div>
       </div>
     </main>
   </template>
 </template>
 
-<style></style>
+<style>
+.notification {
+  margin-top: 1rem;
+}
+</style>

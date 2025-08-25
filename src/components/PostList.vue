@@ -18,6 +18,7 @@ export default {
       required: true,
     },
     isLoading: Boolean,
+    loadError: String,
   },
   data() {
     return {
@@ -26,8 +27,7 @@ export default {
       editPopupOpened: false,
     };
   },
-  emits: ["add", "delete", "edit"],
-
+  emits: ["add", "delete", "edit", "retry"], 
   methods: {
     toggleSelectedPost(id) {
       if (this.selectedPostId === id) {
@@ -44,12 +44,7 @@ export default {
       if (this.selectedPostId !== 0) {
         this.selectedPostId = 0;
       }
-
-      if (this.addPopupOpened) {
-        this.addPopupOpened = false;
-      } else {
-        this.addPopupOpened = true;
-      }
+      this.addPopupOpened = !this.addPopupOpened;
     },
     openEditPostPopup() {
       this.editPopupOpened = true;
@@ -77,6 +72,9 @@ export default {
       });
       this.closeEditPostPopup();
     },
+    retryLoad() {
+      this.$emit("retry");
+    },
   },
   computed: {
     selectedPost() {
@@ -92,19 +90,24 @@ export default {
       <div class="block">
         <div class="block is-flex is-justify-content-space-between">
           <p class="title">Posts</p>
-          <button
-            type="button"
-            class="button is-link"
-            @click="openAddPostPopup"
-          >
+          <button type="button" class="button is-link" @click="openAddPostPopup">
             Add New Post
           </button>
         </div>
+
         <div v-if="isLoading" style="display: flex; justify-content: center;">
-          <Loader  />
+          <Loader />
         </div>
-        
+
+        <div v-else-if="loadError" class="notification is-danger">
+          {{ loadError }}
+          <button type="button" class="button is-light is-small ml-2" @click="retryLoad">
+            Retry
+          </button>
+        </div>
+
         <h3 v-else-if="posts.length === 0" class="mt-2 has-text-centered">No posts yet.</h3>
+
         <table v-else class="table is-fullwidth is-striped is-hoverable is-narrow">
           <thead>
             <tr class="has-background-link-light">
@@ -134,22 +137,7 @@ export default {
     </div>
   </div>
 
-  <AddPostPopup
-    v-if="addPopupOpened"
-    @add="forwardAdd"
-    @close="closeAddPopup"
-  />
-  <Sidebar
-    v-if="selectedPost && !editPopupOpened"
-    :post="selectedPost"
-    @delete="preDelete"
-    @open="openEditPostPopup"
-  />
-  <EditPostPopup
-    v-if="selectedPost && editPopupOpened"
-    :post="selectedPost"
-    @close="closeEditPostPopup"
-    @edit="preEdit"
-  />
+  <AddPostPopup v-if="addPopupOpened" @add="forwardAdd" @close="closeAddPopup" />
+  <Sidebar v-if="selectedPost && !editPopupOpened" :post="selectedPost" @delete="preDelete" @open="openEditPostPopup" />
+  <EditPostPopup v-if="selectedPost && editPopupOpened" :post="selectedPost" @close="closeEditPostPopup" @edit="preEdit" />
 </template>
-<style></style>
